@@ -1,0 +1,56 @@
+{
+  "search_metadata": {
+    "google_flights_url": "https://www.google.com/travel/flights?q=KNU+to+IXE"
+  },
+  "best_flights": [
+    {
+      "price": 9800,
+      "total_duration": 360,
+      "flights": [
+        {
+          "airline": "IndiGo",
+          "flight_number": "6E 2345",
+          "departure_airport": {"id": "KNU", "time": "2026-11-13 07:30"},
+          "arrival_airport": {"id": "DEL", "time": "2026-11-13 08:45"}
+        },
+        {
+          "airline": "IndiGo",
+          "flight_number": "6E 6789",
+          "departure_airport": {"id": "DEL", "time": "2026-11-13 11:00"},
+          "arrival_airport": {"id": "IXE", "time": "2026-11-13 13:30"}
+        }
+      ],
+      "layovers": [
+        {"id": "DEL", "name": "Delhi", "duration": 135}
+      ]
+    }
+  ],
+  "other_flights": [
+    {
+      "price": 11200,
+      "total_duration": 420,
+      "flights": [
+        {
+          "airline": "Air India",
+          "flight_number": "AI 111",
+          "departure_airport": {"id": "KNU", "time": "2026-11-13 06:00"},
+          "arrival_airport": {"id": "BOM", "time": "2026-11-13 08:30"}
+        },
+        {
+          "airline": "Air India",
+          "flight_number": "AI 222",
+          "departure_airport": {"id": "BOM", "time": "2026-11-13 10:00"},
+          "arrival_airport": {"id": "IXE", "time": "2026-11-13 11:00"}
+        }
+      ],
+      "layovers": [
+        {"id": "BOM", "name": "Mumbai", "duration": 90}
+      ]
+    }
+  ],
+  "price_insights": {
+    "lowest_price": 9800,
+    "price_level": "typical",
+    "typical_price_range": [9000, 14000]
+  }
+}

@@ -1,0 +1,44 @@
+# Flight Tracker configuration.
+# Secrets (API keys, tokens) are NOT stored here -- they come from environment
+# variables / GitHub Actions secrets. This file only holds non-sensitive settings.
+
+# The route(s) to track. Add more entries to track multiple routes at once.
+routes:
+  - origin: KNU            # Kanpur
+    destination: IXE       # Mangalore
+    departure_date: 2026-11-13
+    currency: INR
+    # Optional "ideal" price. Leave null to let the algorithm decide purely from
+    # historical data and Google's price insights.
+    target_price: null
+
+# How the decision algorithm behaves.
+analyzer:
+  # An observation is considered a "new low" alert-worthy event when it is at or
+  # below this fraction of the historical minimum (1.0 = must tie/beat the min).
+  new_low_tolerance: 1.00
+  # Price percentile (0-100) at/below which the current fare counts as "cheap".
+  cheap_percentile: 25
+  # Number of recent days used to estimate the short-term price trend.
+  trend_window_days: 7
+  # Minimum observations before the statistical verdict is considered confident.
+  min_observations_for_confidence: 6
+  # Inside this many days-to-departure, treat booking as urgent (fares usually rise).
+  urgent_days_to_departure: 10
+  # Buy-window begins at this many days-to-departure (the "~2-week cliff").
+  buy_window_days_to_departure: 16
+
+# When and how to send alerts.
+alerts:
+  # Send at most one digest per day, within this local-time hour window [start, end).
+  digest_hour_start: 17
+  digest_hour_end: 23
+  # Do not re-send the same strong-buy alert more often than this many hours
+  # (unless a brand-new all-time low appears).
+  strong_buy_cooldown_hours: 12
+  # Timezone used to decide "evening" and "today" (IANA name).
+  timezone: Asia/Kolkata
+
+storage:
+  history_path: data/price_history.jsonl
+  state_path: data/alert_state.json
