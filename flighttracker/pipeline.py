@@ -36,11 +36,13 @@ class Pipeline:
         notifier: Optional[Notifier] = None,
         *,
         dry_run: bool = False,
+        force_alert: bool = False,
     ):
         self.config = config
         self.provider = provider
         self.notifier = notifier
         self.dry_run = dry_run
+        self.force_alert = force_alert
         self.history = HistoryStore(config.storage.history_path)
         self.state = StateStore(config.storage.state_path)
 
@@ -84,6 +86,11 @@ class Pipeline:
             quote, decision, self.state.get(route.key), self.config.alerts, now_utc
         )
         self.state.set(route.key, new_state)
+
+        if self.force_alert and not plan.should_send:
+            plan.should_send = True
+            plan.kind = plan.kind or "manual_test"
+            plan.reason = plan.reason or "Manual test alert (--force-alert)"
 
         if plan.should_send:
             body = format_message(quote, decision, route, reason=plan.reason)

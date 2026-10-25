@@ -28,6 +28,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Force the console notifier even if Twilio is configured.",
     )
+    p.add_argument(
+        "--force-alert",
+        action="store_true",
+        help="Send the alert now regardless of the time window / signal (for testing delivery).",
+    )
     p.add_argument("-v", "--verbose", action="store_true", help="Verbose logging.")
 
     override = p.add_argument_group(
@@ -97,7 +102,9 @@ def main(argv=None) -> int:
         else:
             notifier = TwilioWhatsAppNotifier(config.twilio)
 
-    pipeline = Pipeline(config, provider, notifier, dry_run=args.dry_run)
+    pipeline = Pipeline(
+        config, provider, notifier, dry_run=args.dry_run, force_alert=args.force_alert
+    )
     results = pipeline.run()
 
     exit_code = 0

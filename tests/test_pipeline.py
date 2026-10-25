@@ -82,3 +82,12 @@ def test_dry_run_does_not_persist(tmp_path):
     pipe = Pipeline(cfg, FakeProvider(9800), RecordingNotifier(), dry_run=True)
     pipe.run(now_utc=datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc))
     assert not (tmp_path / "history.jsonl").exists()
+
+
+def test_force_alert_sends_outside_window(tmp_path):
+    cfg = make_config(tmp_path)
+    notifier = RecordingNotifier()
+    morning = datetime(2026, 10, 1, 6, 0, tzinfo=timezone.utc)  # 11:30 IST, no digest
+    r = Pipeline(cfg, FakeProvider(9800), notifier, force_alert=True).run(now_utc=morning)
+    assert len(notifier.sent) == 1
+    assert r[0].alerted and r[0].alert_kind == "manual_test"
