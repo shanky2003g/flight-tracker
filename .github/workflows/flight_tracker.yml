@@ -6,6 +6,23 @@ on:
     # which falls inside the evening digest window (17:00-23:00 IST).
     - cron: '15 */6 * * *'
   workflow_dispatch:
+    inputs:
+      origin:
+        description: "Origin IATA (e.g. KNU). Leave blank to use config.yaml routes."
+        required: false
+        default: ""
+      destination:
+        description: "Destination IATA (e.g. BOM). Leave blank to use config.yaml routes."
+        required: false
+        default: ""
+      departure_date:
+        description: "Departure date YYYY-MM-DD (required if origin/destination set)."
+        required: false
+        default: ""
+      currency:
+        description: "Currency code."
+        required: false
+        default: "INR"
 
 # Needed so the workflow can commit the updated price history back to the repo.
 permissions:
@@ -42,7 +59,21 @@ jobs:
           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
           WHATSAPP_TO: ${{ secrets.WHATSAPP_TO }}
           TZ: 'Asia/Kolkata'
-        run: python -m flighttracker
+          IN_ORIGIN: ${{ github.event.inputs.origin }}
+          IN_DEST: ${{ github.event.inputs.destination }}
+          IN_DATE: ${{ github.event.inputs.departure_date }}
+          IN_CUR: ${{ github.event.inputs.currency }}
+        run: |
+          if [ -n "$IN_ORIGIN" ] && [ -n "$IN_DEST" ] && [ -n "$IN_DATE" ]; then
+            echo "One-off route: $IN_ORIGIN -> $IN_DEST on $IN_DATE"
+            python -m flighttracker \
+              --origin "$IN_ORIGIN" \
+              --destination "$IN_DEST" \
+              --date "$IN_DATE" \
+              --currency "${IN_CUR:-INR}"
+          else
+            python -m flighttracker
+          fi
 
       - name: Persist price history
         if: always()
