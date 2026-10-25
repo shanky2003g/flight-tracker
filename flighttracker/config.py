@@ -40,7 +40,7 @@ class TwilioConfig:
     auth_token: str = ""
     whatsapp_from: str = "whatsapp:+14155238886"
     whatsapp_to: str = ""
-    content_sid: str = "HXb5b62575e6e4ff6129ad7c8efe1f983e"
+    content_sid: str = ""
 
     @property
     def configured(self) -> bool:
@@ -94,7 +94,7 @@ def load_config(path: str = "config.yaml") -> Config:
         whatsapp_from=os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886").strip(),
         whatsapp_to=os.getenv("WHATSAPP_TO", "").strip(),
         content_sid=os.getenv(
-            "TWILIO_CONTENT_SID", "HXb5b62575e6e4ff6129ad7c8efe1f983e"
+            "TWILIO_CONTENT_SID", ""
         ).strip(),
     )
     return cfg

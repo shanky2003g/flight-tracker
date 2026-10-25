@@ -49,24 +49,30 @@ class TwilioWhatsAppNotifier(Notifier):
             return
 
         # 2) Outside the window Twilio requires an approved template (error 21654).
-        if "21654" in resp.text and short_1 and short_2:
-            log.info("Session window closed; falling back to Twilio template.")
-            resp2 = requests.post(
-                self._url,
-                data={
-                    "From": self._from,
-                    "To": self._to,
-                    "ContentSid": self.cfg.content_sid,
-                    "ContentVariables": json.dumps({"1": short_1, "2": short_2}),
-                },
-                auth=auth,
-                timeout=self.timeout,
-            )
-            if resp2.status_code in (200, 201):
-                log.info("WhatsApp template alert delivered.")
-                return
+        if "21654" in resp.text:
+            if self.cfg.content_sid and short_1 and short_2:
+                log.info("Session window closed; falling back to Twilio template.")
+                resp2 = requests.post(
+                    self._url,
+                    data={
+                        "From": self._from,
+                        "To": self._to,
+                        "ContentSid": self.cfg.content_sid,
+                        "ContentVariables": json.dumps({"1": short_1, "2": short_2}),
+                    },
+                    auth=auth,
+                    timeout=self.timeout,
+                )
+                if resp2.status_code in (200, 201):
+                    log.info("WhatsApp template alert delivered.")
+                    return
+                raise NotifyError(
+                    f"Twilio template error {resp2.status_code}: {resp2.text[:300]}"
+                )
             raise NotifyError(
-                f"Twilio template error {resp2.status_code}: {resp2.text[:300]}"
+                "Outside Twilio's 24h session window. Reply to the sandbox number "
+                "from your phone to re-open it, or set TWILIO_CONTENT_SID to an "
+                "approved template SID. (Twilio error 21654.)"
             )
 
         raise NotifyError(f"Twilio error {resp.status_code}: {resp.text[:300]}")
