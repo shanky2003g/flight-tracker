@@ -7,6 +7,7 @@ import sys
 
 from .config import load_config
 from .notifier.console import ConsoleNotifier
+from .notifier.telegram import TelegramNotifier
 from .notifier.whatsapp import TwilioWhatsAppNotifier
 from .pipeline import Pipeline
 from .providers.serpapi import SerpApiProvider
@@ -26,7 +27,13 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--console",
         action="store_true",
-        help="Force the console notifier even if Twilio is configured.",
+        help="Force the console notifier even if a real channel is configured.",
+    )
+    p.add_argument(
+        "--channel",
+        choices=["auto", "telegram", "whatsapp", "console"],
+        default="auto",
+        help="Which notifier to use. 'auto' prefers Telegram, then WhatsApp, else console.",
     )
     p.add_argument(
         "--force-alert",
@@ -93,14 +100,30 @@ def main(argv=None) -> int:
 
     notifier = None
     if not args.dry_run:
-        if args.console or not config.twilio.configured:
+        log = logging.getLogger(__name__)
+        channel = "console" if args.console else args.channel
+        if channel == "auto":
+            if config.telegram.configured:
+                channel = "telegram"
+            elif config.twilio.configured:
+                channel = "whatsapp"
+            else:
+                channel = "console"
+
+        if channel == "telegram":
+            if not config.telegram.configured:
+                log.warning("Telegram not configured; using console notifier.")
+                notifier = ConsoleNotifier()
+            else:
+                notifier = TelegramNotifier(config.telegram)
+        elif channel == "whatsapp":
             if not config.twilio.configured:
-                logging.getLogger(__name__).warning(
-                    "Twilio not fully configured; using console notifier."
-                )
-            notifier = ConsoleNotifier()
+                log.warning("Twilio not configured; using console notifier.")
+                notifier = ConsoleNotifier()
+            else:
+                notifier = TwilioWhatsAppNotifier(config.twilio)
         else:
-            notifier = TwilioWhatsAppNotifier(config.twilio)
+            notifier = ConsoleNotifier()
 
     pipeline = Pipeline(
         config, provider, notifier, dry_run=args.dry_run, force_alert=args.force_alert

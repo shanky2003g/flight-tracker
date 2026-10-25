@@ -1,4 +1,4 @@
-name: KNU to IXE WhatsApp Flight Tracker
+name: KNU to IXE Flight Tracker
 
 on:
   schedule:
@@ -23,6 +23,11 @@ on:
         description: "Currency code."
         required: false
         default: "INR"
+      force_alert:
+        description: "Send the alert now regardless of time window / signal (test delivery)."
+        type: boolean
+        required: false
+        default: false
 
 # Needed so the workflow can commit the updated price history back to the repo.
 permissions:
@@ -54,6 +59,8 @@ jobs:
       - name: Run flight tracker
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
@@ -63,16 +70,21 @@ jobs:
           IN_DEST: ${{ github.event.inputs.destination }}
           IN_DATE: ${{ github.event.inputs.departure_date }}
           IN_CUR: ${{ github.event.inputs.currency }}
+          IN_FORCE: ${{ github.event.inputs.force_alert }}
         run: |
+          FORCE_FLAG=""
+          if [ "$IN_FORCE" = "true" ]; then
+            FORCE_FLAG="--force-alert"
+          fi
           if [ -n "$IN_ORIGIN" ] && [ -n "$IN_DEST" ] && [ -n "$IN_DATE" ]; then
             echo "One-off route: $IN_ORIGIN -> $IN_DEST on $IN_DATE"
             python -m flighttracker \
               --origin "$IN_ORIGIN" \
               --destination "$IN_DEST" \
               --date "$IN_DATE" \
-              --currency "${IN_CUR:-INR}"
+              --currency "${IN_CUR:-INR}" $FORCE_FLAG
           else
-            python -m flighttracker
+            python -m flighttracker $FORCE_FLAG
           fi
 
       - name: Persist price history

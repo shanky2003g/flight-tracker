@@ -48,12 +48,23 @@ class TwilioConfig:
 
 
 @dataclass
+class TelegramConfig:
+    bot_token: str = ""
+    chat_id: str = ""
+
+    @property
+    def configured(self) -> bool:
+        return bool(self.bot_token and self.chat_id)
+
+
+@dataclass
 class Config:
     routes: List[Route] = field(default_factory=list)
     analyzer: AnalyzerConfig = field(default_factory=AnalyzerConfig)
     alerts: AlertsConfig = field(default_factory=AlertsConfig)
     storage: StorageConfig = field(default_factory=StorageConfig)
     twilio: TwilioConfig = field(default_factory=TwilioConfig)
+    telegram: TelegramConfig = field(default_factory=TelegramConfig)
     serpapi_key: str = ""
 
 
@@ -96,5 +107,9 @@ def load_config(path: str = "config.yaml") -> Config:
         content_sid=os.getenv(
             "TWILIO_CONTENT_SID", ""
         ).strip(),
+    )
+    cfg.telegram = TelegramConfig(
+        bot_token=os.getenv("TELEGRAM_BOT_TOKEN", "").strip(),
+        chat_id=os.getenv("TELEGRAM_CHAT_ID", "").strip(),
     )
     return cfg
