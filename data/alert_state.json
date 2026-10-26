@@ -1,9 +1,10 @@
 {
   "KNU-IXE-2026-11-13": {
     "last_seen_price": 15184,
-    "last_run_at": "2026-10-26T04:49:54.017720+00:00",
-    "last_priority_at": "2026-10-25T20:27:47.806882+00:00",
-    "last_alerted_low": 15184
+    "last_run_at": "2026-10-26T13:06:26.700731+00:00",
+    "last_priority_at": "2026-10-26T13:06:26.700731+00:00",
+    "last_alerted_low": 15184,
+    "last_digest_date": "2026-10-26"
   },
   "DEL-BOM-2026-11-13": {
     "last_seen_price": 7299,
