@@ -1,8 +1,8 @@
 {
   "KNU-IXE-2026-11-13": {
-    "last_seen_price": 15160,
-    "last_run_at": "2026-11-05T06:48:57.196430+00:00",
-    "last_priority_at": "2026-11-04T19:46:43.998494+00:00",
+    "last_seen_price": 15115,
+    "last_run_at": "2026-11-05T19:58:21.005270+00:00",
+    "last_priority_at": "2026-11-05T19:58:21.005270+00:00",
     "last_alerted_low": 14131,
     "last_digest_date": "2026-11-02"
   },
